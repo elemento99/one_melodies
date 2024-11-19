@@ -9,6 +9,7 @@
   <body>
     <label for="noteCount">Selecciona la cantidad de notas (n): </label>
     <input type="number" id="noteCount" min="1" max="10" value="4" />
+    <button id="generateButton">Generar Ritmo</button>
     <button id="loopRhythmButton">Reproducir Ritmo en Bucle</button>
 
     <div id="buttons-container"></div>
@@ -145,10 +146,10 @@
 
         // Calcula la duración entre acordes basada en el BPM actual
         const chordDuration = Tone.Time('4n').toSeconds(); // Un cuarto de nota (4n)
-
         let time = 0;
         chords.forEach((chord) => {
           sampler.triggerAttackRelease(chord, '8n', `+${time}`);
+          time += 1;
           time += chordDuration;
         });
       };
@@ -199,7 +200,6 @@
             notasContainer.appendChild(item);
           });
         }
-
         // Define el loop
         currentLoop = new Tone.Loop((time) => {
           combinacion.forEach(({ nota, duracion }, i) => {
@@ -216,13 +216,11 @@
         currentLoop.start(0);
 
         console.log('Ritmo en bucle:', combinacion);
-
         // Oculta el contenedor de notas
         if (notasContainer) {
           notasContainer.style.display = 'none';
         }
       };
-
       document.getElementById('toggleNotasButton').onclick = () => {
         const notasContainer = document.getElementById('notasContainer');
         if (
@@ -296,4 +294,3 @@
     </script>
   </body>
 </html>
-
