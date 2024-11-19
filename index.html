@@ -9,7 +9,6 @@
   <body>
     <label for="noteCount">Selecciona la cantidad de notas (n): </label>
     <input type="number" id="noteCount" min="1" max="10" value="4" />
-    <button id="generateButton">Generar Ritmo</button>
     <button id="loopRhythmButton">Reproducir Ritmo en Bucle</button>
 
     <div id="buttons-container"></div>
@@ -37,7 +36,8 @@
     <button id="playCadenceButton">Reproducir Cadencia</button>
     <button id="toggleNotasButton">Ocultar Notas</button>
     <div id="notasContainer" style="display: block"></div>
-
+    <button id="playDroneButton">Reproducir Drone</button>
+    <button id="stopDroneButton">Detener Drone</button>
     <script>
       const todasLasNotas = ['C4', 'D4', 'E4', 'F4', 'G4', 'A4', 'B4'];
       const duraciones = ['8n', '4n', '16n', '2n'];
@@ -234,6 +234,66 @@
           notasContainer.style.display = 'none'; // Oculta el contenedor
         }
       };
+
+      const droneSynth = new Tone.PolySynth(Tone.Synth).toDestination();
+      const droneChordIntervals = [0, 4, 7];
+      let currentDroneNotes = [];
+
+      // Obtener notas para el drone
+      function getDroneNotes(key) {
+        const allNotes = [
+          'C',
+          'C#',
+          'D',
+          'D#',
+          'E',
+          'F',
+          'F#',
+          'G',
+          'G#',
+          'A',
+          'A#',
+          'B',
+        ];
+        const rootIndex = allNotes.indexOf(key);
+        return droneChordIntervals.map(
+          (interval) => allNotes[(rootIndex + interval) % allNotes.length] + '3'
+        );
+      }
+
+      // Reproducir drone
+      async function playDrone() {
+        const key = document.getElementById('key').value;
+        currentDroneNotes = getDroneNotes(key);
+        await Tone.start(); // Asegúrate de que Tone.js está inicializado
+        droneSynth.triggerAttack(currentDroneNotes);
+      }
+
+      // Detener drone
+      function stopDrone() {
+        // Detener cualquier nota activa
+        droneSynth.releaseAll(); // Método genérico si tu synth lo soporta
+        droneSynth.triggerRelease(currentDroneNotes); // Nota específica
+        currentDroneNotes = [];
+
+        // Limpiar otros posibles synths o fuentes de audio
+        if (otherSynth && otherSynth.triggerRelease) {
+          otherSynth.triggerRelease();
+        }
+
+        // Si estás usando un contexto de audio
+        if (audioContext && audioContext.state === 'running') {
+          audioContext.suspend(); // Opcional: detiene todo temporalmente
+        }
+      }
+
+      document
+        .getElementById('playDroneButton')
+        .addEventListener('click', playDrone);
+      document
+        .getElementById('stopDroneButton')
+        .addEventListener('click', stopDrone);
     </script>
   </body>
 </html>
+
