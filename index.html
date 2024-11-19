@@ -147,10 +147,12 @@
         // Calcula la duración entre acordes basada en el BPM actual
         const chordDuration = Tone.Time('4n').toSeconds(); // Un cuarto de nota (4n)
         let time = 0;
-        chords.forEach((chord) => {
+
+        // Calcula la duración de cada acorde en función del BPM
+        chords.forEach((chord, index) => {
+          // La duración de un acorde ahora depende del BPM y la duración de la nota
           sampler.triggerAttackRelease(chord, '8n', `+${time}`);
-          time += 1;
-          time += chordDuration;
+          time += chordDuration; // Incrementa el tiempo de acuerdo con el BPM
         });
       };
 
