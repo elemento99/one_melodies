@@ -9,7 +9,7 @@
   <body>
     <label for="noteCount">Selecciona la cantidad de notas (n): </label>
     <input type="number" id="noteCount" min="1" max="10" value="4" />
-    <button id="generateButton">Generar Ritmo</button>
+
     <button id="loopRhythmButton">Reproducir Ritmo en Bucle</button>
 
     <div id="buttons-container"></div>
@@ -21,7 +21,12 @@
     <!-- Botón para detener todos los sonidos -->
     <button id="stopButton">Detener Sonidos</button>
 
-    <!-- Selector de tonalidad -->
+    <!-- Botón para reproducir la cadencia -->
+    <button id="playCadenceButton">Reproducir Cadencia</button>
+    <button id="toggleNotasButton">Ocultar Notas</button>
+    <div id="notasContainer" style="display: block"></div>
+    <button id="playDroneButton">Reproducir Drone</button>
+    <button id="stopDroneButton">Detener Drone</button>
     <label for="key">Selecciona una tonalidad: </label>
     <select id="key">
       <option value="C">C</option>
@@ -33,14 +38,210 @@
       <option value="B">B</option>
     </select>
 
-    <!-- Botón para reproducir la cadencia -->
-    <button id="playCadenceButton">Reproducir Cadencia</button>
-    <button id="toggleNotasButton">Ocultar Notas</button>
-    <div id="notasContainer" style="display: block"></div>
-    <button id="playDroneButton">Reproducir Drone</button>
-    <button id="stopDroneButton">Detener Drone</button>
+    <h1>Selecciona el nivel de dificultad</h1>
+    <input type="range" id="nivelDificultad" min="1" max="38" value="1" />
+    <span id="nivelValor">Nivel 1</span>
+
+    <p>Notas disponibles: <span id="notasDisplay"></span></p>
+
+    <button id="generateButton" hidden>Generar Ritmo</button>
+    <button id="generarNotas" hidden>Generar Secuencia</button>
+
     <script>
-      const todasLasNotas = ['C4', 'D4', 'E4', 'F4', 'G4', 'A4', 'B4'];
+      const todasLasNotasPiano = [
+        'C0',
+        'C#0',
+        'D0',
+        'D#0',
+        'E0',
+        'F0',
+        'F#0',
+        'G0',
+        'G#0',
+        'A0',
+        'A#0',
+        'B0',
+        'C1',
+        'C#1',
+        'D1',
+        'D#1',
+        'E1',
+        'F1',
+        'F#1',
+        'G1',
+        'G#1',
+        'A1',
+        'A#1',
+        'B1',
+        'C2',
+        'C#2',
+        'D2',
+        'D#2',
+        'E2',
+        'F2',
+        'F#2',
+        'G2',
+        'G#2',
+        'A2',
+        'A#2',
+        'B2',
+        'C3',
+        'C#3',
+        'D3',
+        'D#3',
+        'E3',
+        'F3',
+        'F#3',
+        'G3',
+        'G#3',
+        'A3',
+        'A#3',
+        'B3',
+        'C4',
+        'C#4',
+        'D4',
+        'D#4',
+        'E4',
+        'F4',
+        'F#4',
+        'G4',
+        'G#4',
+        'A4',
+        'A#4',
+        'B4',
+        'C5',
+        'C#5',
+        'D5',
+        'D#5',
+        'E5',
+        'F5',
+        'F#5',
+        'G5',
+        'G#5',
+        'A5',
+        'A#5',
+        'B5',
+        'C6',
+        'C#6',
+        'D6',
+        'D#6',
+        'E6',
+        'F6',
+        'F#6',
+        'G6',
+        'G#6',
+        'A6',
+        'A#6',
+        'B6',
+        'C7',
+        'C#7',
+        'D7',
+        'D#7',
+        'E7',
+        'F7',
+        'F#7',
+        'G7',
+        'G#7',
+        'A7',
+        'A#7',
+        'B7',
+        'C8',
+      ];
+
+      // Función para obtener las notas por nivel
+      function obtenerNotasPorNivel(nivel) {
+        const indexC4 = todasLasNotasPiano.indexOf('C4');
+        const totalNotas = nivel;
+
+        let notas = [];
+        const notasCentro = [
+          'C4',
+          'C#4',
+          'D4',
+          'D#4',
+          'E4',
+          'F4',
+          'F#4',
+          'G4',
+          'G#4',
+          'A4',
+          'A#4',
+          'B4',
+        ];
+
+        for (let i = 1; i <= nivel; i++) {
+          const abajo = indexC4 - i;
+          const arriba = indexC4 + i;
+
+          if (abajo >= 0) notas.unshift(todasLasNotasPiano[abajo]);
+          if (arriba < todasLasNotasPiano.length)
+            notas.push(todasLasNotasPiano[arriba]);
+        }
+
+        // Se combinan las notas del centro y las de la expansión del nivel
+        return [...notasCentro, ...notas];
+      }
+
+      // Escalas mayores por tonalidad
+      const escalasMayores = {
+        C: ['C', 'D', 'E', 'F', 'G', 'A', 'B'],
+        D: ['D', 'E', 'F#', 'G', 'A', 'B', 'C#'],
+        E: ['E', 'F#', 'G#', 'A', 'B', 'C#', 'D#'],
+        F: ['F', 'G', 'A', 'A#', 'C', 'D', 'E'],
+        G: ['G', 'A', 'B', 'C', 'D', 'E', 'F#'],
+        A: ['A', 'B', 'C#', 'D', 'E', 'F#', 'G#'],
+        B: ['B', 'C#', 'D#', 'E', 'F#', 'G#', 'A#'],
+      };
+
+      // Función para generar las notas aleatorias en la tonalidad y nivel seleccionados
+      function generarNotasAleatorias(n) {
+        const tonalidad = document.getElementById('key').value;
+        const escala = escalasMayores[tonalidad];
+
+        // Filtrar notas disponibles en la tonalidad seleccionada
+        const notasDisponibles = todasLasNotas.filter((nota) => {
+          const nombreNota = nota.replace(/\d/, ''); // Remover número de la nota para comparar
+          return escala.includes(nombreNota);
+        });
+
+        // Generar una secuencia aleatoria de notas dentro de las notas disponibles
+        return Array.from(
+          { length: n },
+          () =>
+            notasDisponibles[
+              Math.floor(Math.random() * notasDisponibles.length)
+            ]
+        );
+      }
+
+      const slider = document.getElementById('nivelDificultad');
+      const nivelValor = document.getElementById('nivelValor');
+      const notasDisplay = document.getElementById('notasDisplay');
+      const secuenciaDisplay = document.getElementById('secuenciaDisplay');
+
+      let todasLasNotas = obtenerNotasPorNivel(1);
+
+      // Actualiza las notas disponibles al cambiar el nivel
+      slider.addEventListener('input', function () {
+        const nivel = parseInt(slider.value);
+        todasLasNotas = obtenerNotasPorNivel(nivel);
+        nivelValor.textContent = `Nivel ${nivel}`;
+        notasDisplay.textContent = todasLasNotas.join(', ');
+      });
+
+      // Generar y mostrar las notas aleatorias al hacer clic en el botón
+      document
+        .getElementById('generarNotas')
+        .addEventListener('click', function () {
+          const secuencia = generarNotasAleatorias(4);
+          secuenciaDisplay.textContent = secuencia.join(', ');
+        });
+
+      // Inicialización de las notas al cargar la página
+      window.addEventListener('load', function () {
+        notasDisplay.textContent = todasLasNotas.join(', ');
+      });
+
       const duraciones = ['8n', '4n', '16n', '2n'];
       Tone.Transport.bpm.value = 120;
 
@@ -82,9 +283,22 @@
       }).toDestination();
 
       function generarNotasAleatorias(n) {
+        const tonalidad = document.getElementById('key').value;
+        const escala = escalasMayores[tonalidad];
+
+        // Filtrar notas disponibles en la tonalidad seleccionada
+        const notasDisponibles = todasLasNotas.filter((nota) => {
+          const nombreNota = nota.replace(/\d/, ''); // Remover número de la nota para comparar
+          return escala.includes(nombreNota); // Compara con la escala mayor de la tonalidad
+        });
+
+        // Generar una secuencia aleatoria de notas dentro de las notas disponibles
         return Array.from(
           { length: n },
-          () => todasLasNotas[Math.floor(Math.random() * todasLasNotas.length)]
+          () =>
+            notasDisponibles[
+              Math.floor(Math.random() * notasDisponibles.length)
+            ]
         );
       }
 
