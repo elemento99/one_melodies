@@ -452,7 +452,7 @@
 
 
       
-     const droneSynth = new Tone.PolySynth(Tone.Synth).toDestination();
+      const droneSynth = new Tone.PolySynth(Tone.Synth).toDestination();
 
       // Configuración usando .set()
       droneSynth.set({
@@ -487,14 +487,7 @@
       // Ajuste de volumen
       droneSynth.volume.value = -10;
 
-
-
-
-
-
-
-
-      
+      const droneChordIntervals = [0, 4, 7];
       let currentDroneNotes = [];
 
       // Obtener notas para el drone
