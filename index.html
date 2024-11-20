@@ -449,8 +449,52 @@
         }
       };
 
-      const droneSynth = new Tone.PolySynth(Tone.Synth).toDestination();
-      const droneChordIntervals = [0, 4, 7];
+
+
+      
+     const droneSynth = new Tone.PolySynth(Tone.Synth).toDestination();
+
+      // Configuración usando .set()
+      droneSynth.set({
+        filter: {
+          type: 'lowpass', // Filtro pasa-bajos para suavizar el sonido
+          frequency: 300, // Frecuencia de corte baja
+          Q: 1, // Factor de calidad del filtro
+        },
+        envelope: {
+          attack: 2, // Tiempo de ataque largo para una transición suave
+          decay: 3, // Decaimiento más lento
+          sustain: 0.6, // Nivel de sustain moderado
+          release: 5, // Liberación larga para un desvanecimiento suave
+        },
+      });
+
+      // Añadir efectos
+      const reverb = new Tone.Reverb({
+        decay: 10,
+        preDelay: 0.5,
+      }).toDestination();
+
+      const delay = new Tone.FeedbackDelay({
+        delayTime: '4n',
+        feedback: 0.4,
+      }).toDestination();
+
+      // Conectar el sintetizador con los efectos
+      droneSynth.connect(reverb);
+      droneSynth.connect(delay);
+
+      // Ajuste de volumen
+      droneSynth.volume.value = -10;
+
+
+
+
+
+
+
+
+      
       let currentDroneNotes = [];
 
       // Obtener notas para el drone
